@@ -1,26 +1,26 @@
 <?php
 /**
- * Plugin Name: Restrict Content Pro - Download Packs for Easy Digital Downloads
+ * Plugin Name: Restrict Content Pro - EDD Member Downloads
  * Description: Allow members to download a certain number of items based on their subscription level.
  * Version: 1.0
  * Author: Restrict Content Pro Team
- * Text Domain: rcp-edd-packs
+ * Text Domain: rcp-edd-member-downloads
  */
 
 
 /**
  * Loads the plugin textdomain.
  */
-function rcp_edd_packs_textdomain() {
-	load_plugin_textdomain( 'rcp-edd-packs', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+function rcp_edd_member_downloads_textdomain() {
+	load_plugin_textdomain( 'rcp-edd-member-downloads', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 }
-add_action( 'plugins_loaded', 'rcp_edd_packs_textdomain' );
+add_action( 'plugins_loaded', 'rcp_edd_member_downloads_textdomain' );
 
 
 /**
  * Adds the plugin settings form fields to the subscription level form.
  */
-function rcp_edd_packs_level_fields( $level ) {
+function rcp_edd_member_downloads_level_fields( $level ) {
 
 	if ( ! function_exists( 'EDD' ) ) {
 		return;
@@ -38,26 +38,26 @@ function rcp_edd_packs_level_fields( $level ) {
 
 	<tr class="form-field">
 		<th scope="row" valign="top">
-			<label for="rcp-edd-downloads-allowed"><?php printf( __( '%s Allowed', 'rcp-edd-packs' ), edd_get_label_plural() ); ?></label>
+			<label for="rcp-edd-downloads-allowed"><?php printf( __( '%s Allowed', 'rcp-edd-member-downloads' ), edd_get_label_plural() ); ?></label>
 		</th>
 		<td>
 			<input type="number" min="0" step="1" id="rcp-edd-downloads-allowed" name="rcp-edd-downloads-allowed" value="<?php echo absint( $allowed ); ?>" style="width: 60px;"/>
-			<p class="description"><?php printf( __( 'The number of %s allowed each subscription period.', 'rcp-edd-packs' ), strtolower( edd_get_label_plural() ) ); ?></p>
+			<p class="description"><?php printf( __( 'The number of %s allowed each subscription period.', 'rcp-edd-member-downloads' ), strtolower( edd_get_label_plural() ) ); ?></p>
 		</td>
 	</tr>
 
 	<?php
 	wp_nonce_field( 'rcp_edd_downloads_allowed_nonce', 'rcp_edd_downloads_allowed_nonce' );
 }
-add_action( 'rcp_add_subscription_form', 'rcp_edd_packs_level_fields' );
-add_action( 'rcp_edit_subscription_form', 'rcp_edd_packs_level_fields' );
+add_action( 'rcp_add_subscription_form', 'rcp_edd_member_downloads_level_fields' );
+add_action( 'rcp_edit_subscription_form', 'rcp_edd_member_downloads_level_fields' );
 
 
 
 /**
  * Saves the subscription level limit settings.
  */
-function rcp_edd_packs_save_level_limits( $level_id = 0, $args = array() ) {
+function rcp_edd_member_downloads_save_level_limits( $level_id = 0, $args = array() ) {
 
 	if ( ! function_exists( 'EDD' ) ) {
 		return;
@@ -76,14 +76,14 @@ function rcp_edd_packs_save_level_limits( $level_id = 0, $args = array() ) {
 
 	$rcp_levels_db->update_meta( $level_id, 'edd_downloads_allowed', absint( $_POST['rcp-edd-downloads-allowed'] ) );
 }
-add_action( 'rcp_add_subscription', 'rcp_edd_packs_save_level_limits', 10, 2 );
-add_action( 'rcp_edit_subscription_level', 'rcp_edd_packs_save_level_limits', 10, 2 );
+add_action( 'rcp_add_subscription', 'rcp_edd_member_downloads_save_level_limits', 10, 2 );
+add_action( 'rcp_edit_subscription_level', 'rcp_edd_member_downloads_save_level_limits', 10, 2 );
 
 
 /**
  * Determines if the member is at the product submission limit.
  */
-function rcp_edd_packs_member_at_limit( $user_id = 0 ) {
+function rcp_edd_member_downloads_member_at_limit( $user_id = 0 ) {
 
 	if ( ! function_exists( 'rcp_get_subscription_id' ) ) {
 		return;
@@ -101,7 +101,7 @@ function rcp_edd_packs_member_at_limit( $user_id = 0 ) {
 
 	if ( $sub_id ) {
 		$max = (int) $rcp_levels_db->get_meta( $sub_id, 'edd_downloads_allowed', true );
-		$current = (int) get_user_meta( $user_id, 'rcp_edd_packs_current_download_count', true );
+		$current = (int) get_user_meta( $user_id, 'rcp_edd_member_downloads_current_download_count', true );
 		if ( $max >= 1 && $current >= $max ) {
 			$limit = true;
 		}
@@ -114,19 +114,19 @@ function rcp_edd_packs_member_at_limit( $user_id = 0 ) {
 /**
  * Resets a vendor's product submission count when making a new payment.
  */
-function rcp_edd_packs_reset_limit( $payment_id, $args = array(), $amount ) {
+function rcp_edd_member_downloads_reset_limit( $payment_id, $args = array(), $amount ) {
 
 	if ( ! empty( $args['user_id'] ) ) {
-		delete_user_meta( $args['user_id'], 'rcp_edd_packs_current_download_count' );
+		delete_user_meta( $args['user_id'], 'rcp_edd_member_downloads_current_download_count' );
 	}
 }
-add_action( 'rcp_insert_payment', 'rcp_edd_packs_reset_limit', 10, 3 );
+add_action( 'rcp_insert_payment', 'rcp_edd_member_downloads_reset_limit', 10, 3 );
 
 
 /**
  * Determines if a user has a membership that allows downloads.
  */
-function rcp_edd_packs_user_has_pack_membership( $user_id ) {
+function rcp_edd_member_downloads_user_has_download_membership( $user_id ) {
 
 	if ( empty( $user_id ) ) {
 		$user_id = wp_get_current_user()->ID;
@@ -147,7 +147,7 @@ function rcp_edd_packs_user_has_pack_membership( $user_id ) {
 }
 
 
-function rcp_edd_packs_download_button( $purchase_form, $args ) {
+function rcp_edd_member_downloads_download_button( $purchase_form, $args ) {
 
 	if ( ! is_user_logged_in() ) {
 		return $purchase_form;
@@ -164,11 +164,11 @@ function rcp_edd_packs_download_button( $purchase_form, $args ) {
 
 	$user = wp_get_current_user();
 
-	if ( ! rcp_edd_packs_user_has_pack_membership( $user->ID ) ) {
+	if ( ! rcp_edd_member_downloads_user_has_download_membership( $user->ID ) ) {
 		return $purchase_form;
 	}
 
-	if ( rcp_edd_packs_member_at_limit( $user->ID ) && ! edd_has_user_purchased( $user->ID, $args['download_id'] ) ) {
+	if ( rcp_edd_member_downloads_member_at_limit( $user->ID ) && ! edd_has_user_purchased( $user->ID, $args['download_id'] ) ) {
 		return $purchase_form;
 	}
 
@@ -185,12 +185,12 @@ function rcp_edd_packs_download_button( $purchase_form, $args ) {
 	<script type="text/javascript">
 		(function($) {
 			$(document).ready(function() {
-				$('.rcp-edd-download-pack-request').on('click', function(e) {
+				$('.rcp-edd-member-download-request').on('click', function(e) {
 					e.preventDefault();
-					var item = $(this).parent().find("input[name='rcp-edd-download-pack-request']").val();
+					var item = $(this).parent().find("input[name='rcp-edd-member-download-request']").val();
 					var data = {
-						action: 'rcp-edd-download-pack-request',
-						security: $('#rcp-edd-download-pack-nonce').val(),
+						action: 'rcp-edd-member-download-request',
+						security: $('#rcp-edd-member-download-nonce').val(),
 						item: item
 					}
 
@@ -221,22 +221,22 @@ console.log(response);
 ?>
 	<form id="<?php echo $form_id; ?>" class="edd_download_purchase_form edd_purchase_<?php echo absint( $download->ID ); ?>" method="post">
 		<input type="hidden" name="download_id" value="<?php echo esc_attr( $download->ID ); ?>">
-		<input type="hidden" name="rcp-edd-download-pack-request" value="<?php echo esc_attr( $download->ID ); ?>">
-		<input type="hidden" id="rcp-edd-download-pack-nonce" name="rcp-edd-download-pack-nonce" value="<?php echo wp_create_nonce( 'rcp-edd-download-pack-nonce' ); ?>">
-		<input type="submit" class="rcp-edd-download-pack-request" value="<?php esc_html_e( 'Download', 'rcp-edd-packs' ); ?>">
+		<input type="hidden" name="rcp-edd-member-download-request" value="<?php echo esc_attr( $download->ID ); ?>">
+		<input type="hidden" id="rcp-edd-member-download-nonce" name="rcp-edd-member-download-nonce" value="<?php echo wp_create_nonce( 'rcp-edd-member-download-nonce' ); ?>">
+		<input type="submit" class="rcp-edd-member-download-request" value="<?php esc_html_e( 'Download', 'rcp-edd-member-downloads' ); ?>">
 	</form>
 <?php
 	return ob_get_clean();
 
 }
-add_filter( 'edd_purchase_download_form', 'rcp_edd_packs_download_button', 10, 2 );
+add_filter( 'edd_purchase_download_form', 'rcp_edd_member_downloads_download_button', 10, 2 );
 
 
-function rcp_edd_packs_process_ajax_download() {
+function rcp_edd_member_downloads_process_ajax_download() {
 
 	global $rcp_levels_db;
 
-	check_ajax_referer( 'rcp-edd-download-pack-nonce', 'security' );
+	check_ajax_referer( 'rcp-edd-member-download-nonce', 'security' );
 
 	if ( ! is_user_logged_in() ) {
 		wp_die(-1);
@@ -244,7 +244,7 @@ function rcp_edd_packs_process_ajax_download() {
 
 	$user = wp_get_current_user();
 
-	if ( ! rcp_edd_packs_user_has_pack_membership( $user->ID ) ) {
+	if ( ! rcp_edd_member_downloads_user_has_download_membership( $user->ID ) ) {
 		wp_die(-1);
 	}
 
@@ -281,19 +281,19 @@ function rcp_edd_packs_process_ajax_download() {
 		$sub_id = rcp_get_subscription_id( $user_id );
 
 		if ( ! $sub_id ) {
-			wp_die( __( 'You do not have a membership.', 'rcp-edd-packs' ) );
+			wp_die( __( 'You do not have a membership.', 'rcp-edd-member-downloads' ) );
 		}
 
 		$max = (int) $rcp_levels_db->get_meta( $sub_id, 'edd_downloads_allowed', true );
 
 		if ( empty( $max ) ) {
-			wp_die( __( 'You must have a valid membership.', 'rcp-edd-packs' ) );
+			wp_die( __( 'You must have a valid membership.', 'rcp-edd-member-downloads' ) );
 		}
 
-		$current = get_user_meta( $user->ID, 'rcp_edd_packs_current_download_count', true );
+		$current = get_user_meta( $user->ID, 'rcp_edd_member_downloads_current_download_count', true );
 
 		if ( $current >= $max ) {
-			wp_die( __( 'You have reached the limit defined by your membership.', 'rcp-edd-packs' ) );
+			wp_die( __( 'You have reached the limit defined by your membership.', 'rcp-edd-member-downloads' ) );
 		}
 
 		$payment = new EDD_Payment();
@@ -315,7 +315,7 @@ function rcp_edd_packs_process_ajax_download() {
 		$payment->status  = 'complete';
 		$payment->save();
 
-		edd_insert_payment_note( $payment->ID, __( 'Downloaded with RCP membership', 'rcp-edd-packs' ) );
+		edd_insert_payment_note( $payment->ID, __( 'Downloaded with RCP membership', 'rcp-edd-member-downloads' ) );
 
 		$payment_meta = edd_get_payment_meta( $payment->ID );
 		$files        = edd_get_download_files( $item );
@@ -323,7 +323,7 @@ function rcp_edd_packs_process_ajax_download() {
 		$url          = edd_get_download_file_url( $payment_meta['key'], $user->user_email, $file_keys[0], $item );
 
 		$current++;
-		update_user_meta( $user->ID, 'rcp_edd_packs_current_download_count', $current );
+		update_user_meta( $user->ID, 'rcp_edd_member_downloads_current_download_count', $current );
 	}
 
 	wp_send_json( array(
@@ -332,5 +332,5 @@ function rcp_edd_packs_process_ajax_download() {
 	) );
 
 }
-add_action( 'wp_ajax_rcp-edd-download-pack-request', 'rcp_edd_packs_process_ajax_download' );
-add_action( 'wp_ajax_nopriv_rcp-edd-download-pack-request', 'rcp_edd_packs_process_ajax_download' );
+add_action( 'wp_ajax_rcp-edd-member-download-request', 'rcp_edd_member_downloads_process_ajax_download' );
+add_action( 'wp_ajax_nopriv_rcp-edd-member-download-request', 'rcp_edd_member_downloads_process_ajax_download' );
