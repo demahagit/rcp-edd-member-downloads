@@ -97,14 +97,15 @@ function rcp_edd_member_downloads_member_at_limit( $user_id = 0 ) {
 
 	$limit = false;
 
-	$sub_id = rcp_get_subscription_id( $user_id );
+	if ( ! $sub_id = rcp_get_subscription_id( $user_id ) ) {
+		return $limit;
+	}
 
-	if ( $sub_id ) {
-		$max = (int) $rcp_levels_db->get_meta( $sub_id, 'edd_downloads_allowed', true );
-		$current = (int) get_user_meta( $user_id, 'rcp_edd_member_downloads_current_download_count', true );
-		if ( $max >= 1 && $current >= $max ) {
-			$limit = true;
-		}
+	$max     = (int) $rcp_levels_db->get_meta( $sub_id, 'edd_downloads_allowed', true );
+	$current = (int) get_user_meta( $user_id, 'rcp_edd_member_downloads_current_download_count', true );
+
+	if ( $max >= 1 && $current >= $max ) {
+		$limit = true;
 	}
 
 	return $limit;
@@ -132,15 +133,22 @@ function rcp_edd_member_downloads_user_has_download_membership( $user_id ) {
 		$user_id = wp_get_current_user()->ID;
 	}
 
+	$member = new RCP_Member( $user_id );
+
 	global $rcp_levels_db;
 
-	$sub_id = rcp_get_subscription_id( $user_id );
+	if ( ! $sub_id = $member->get_subscription_id() ) {
+		return false;
+	}
 
-	if ( $sub_id ) {
-		$max = (int) $rcp_levels_db->get_meta( $sub_id, 'edd_downloads_allowed', true );
-		if ( ! empty( $max ) && $max > 0 ) {
-			return true;
-		}
+	if ( $member->is_expired() || 'pending' === $member->get_status() ) {
+		return false;
+	}
+
+	$max = (int) $rcp_levels_db->get_meta( $sub_id, 'edd_downloads_allowed', true );
+
+	if ( ! empty( $max ) && $max > 0 ) {
+		return true;
 	}
 
 	return false;
@@ -158,16 +166,24 @@ function rcp_edd_member_downloads_download_button( $purchase_form, $args ) {
 		return $purchase_form;
 	}
 
+	// @todo maybe support variable prices
 	if ( edd_has_variable_prices( $args['download_id'] ) ) {
 		return $purchase_form;
 	}
 
-	$user = wp_get_current_user();
+	// Check to see if the product has files
+	$files = edd_get_download_files( $args['download_id'] );
+	if ( empty( $files ) ) {
+		return $purchase_form;
+	}
 
+	// Check if the member has a membership that allows downloads
+	$user = wp_get_current_user();
 	if ( ! rcp_edd_member_downloads_user_has_download_membership( $user->ID ) ) {
 		return $purchase_form;
 	}
 
+	// Check if the member is at the download limit
 	if ( rcp_edd_member_downloads_member_at_limit( $user->ID ) && ! edd_has_user_purchased( $user->ID, $args['download_id'] ) ) {
 		return $purchase_form;
 	}
@@ -204,7 +220,6 @@ console.log(response);
 							if ( response.file && response.file.length > 0 ) {
 								window.location.replace(response.file);
 							}
-// @todo if no file, change button to show something
 						},
 						error: function (response) {
 							console.log('error ' + response);
@@ -242,8 +257,8 @@ function rcp_edd_member_downloads_process_ajax_download() {
 		wp_die(-1);
 	}
 
+	// Check if the member has a membership that allows downloads
 	$user = wp_get_current_user();
-
 	if ( ! rcp_edd_member_downloads_user_has_download_membership( $user->ID ) ) {
 		wp_die(-1);
 	}
@@ -302,7 +317,6 @@ function rcp_edd_member_downloads_process_ajax_download() {
 		$payment->first_name = $user->first_name;
 		$payment->last_name  = $user->last_name;
 		$payment->user_id    = $user->ID;
-		// @todo is this user_info array necessary?
 		$payment->user_info  = array(
 			'first_name' => $user->first_name,
 			'last_name'  => $user->last_name,
