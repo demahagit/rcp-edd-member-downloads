@@ -216,7 +216,6 @@ function rcp_edd_member_downloads_download_button( $purchase_form, $args ) {
 						dataType: "json",
 						url: edd_scripts.ajaxurl,
 						success: function (response) {
-console.log(response);
 							if ( response.file && response.file.length > 0 ) {
 								window.location.replace(response.file);
 							}
