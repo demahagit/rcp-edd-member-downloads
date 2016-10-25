@@ -230,14 +230,15 @@ function rcp_edd_member_downloads_download_button( $purchase_form, $args ) {
 	</script>
 
 <?php
-	$form_id = ! empty( $args['form_id'] ) ? $args['form_id'] : 'edd_purchase_' . $download->ID;
+	$form_id      = ! empty( $args['form_id'] ) ? $args['form_id'] : 'edd_purchase_' . $download->ID;
+	$button_color = edd_get_option( 'checkout_color', 'blue' );
 	ob_start();
 ?>
 	<form id="<?php echo $form_id; ?>" class="edd_download_purchase_form edd_purchase_<?php echo absint( $download->ID ); ?>" method="post">
 		<input type="hidden" name="download_id" value="<?php echo esc_attr( $download->ID ); ?>">
 		<input type="hidden" name="rcp-edd-member-download-request" value="<?php echo esc_attr( $download->ID ); ?>">
 		<input type="hidden" id="rcp-edd-member-download-nonce" name="rcp-edd-member-download-nonce" value="<?php echo wp_create_nonce( 'rcp-edd-member-download-nonce' ); ?>">
-		<input type="submit" class="rcp-edd-member-download-request" value="<?php esc_html_e( 'Download', 'rcp-edd-member-downloads' ); ?>">
+		<input type="submit" class="rcp-edd-member-download-request button edd-submit <?php echo esc_attr( $button_color ); ?>" value="<?php esc_html_e( 'Download', 'rcp-edd-member-downloads' ); ?>">
 	</form>
 <?php
 	return ob_get_clean();
