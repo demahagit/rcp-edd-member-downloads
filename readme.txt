@@ -1,6 +1,6 @@
 === Restrict Content Pro - EDD Member Downloads ===
 Author URI: https://restrictcontentpro.com
-Contributors: mindctrl
+Contributors: mindctrl, easydigitaldownloads
 Author: Restrict Content Pro Team
 Tags: Restrict Content Pro, Easy Digital Downloads, EDD, download plans, download packs, stock photos, premium content, memberships, subscriptions, restrictions, membership rewards
 Requires at least: 4.5
