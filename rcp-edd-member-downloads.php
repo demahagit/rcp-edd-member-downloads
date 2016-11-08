@@ -203,6 +203,7 @@ function rcp_edd_member_downloads_download_button( $purchase_form, $args ) {
 			$(document).ready(function() {
 				$('.rcp-edd-member-download-request').on('click', function(e) {
 					e.preventDefault();
+					e.stopImmediatePropagation();
 					var item = $(this).parent().find("input[name='rcp-edd-member-download-request']").val();
 					var data = {
 						action: 'rcp-edd-member-download-request',
