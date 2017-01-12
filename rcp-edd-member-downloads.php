@@ -82,11 +82,40 @@ add_action( 'rcp_edit_subscription_level', 'rcp_edd_member_downloads_save_level_
 
 /**
  * Determines if the member is at the product submission limit.
+ *
+ * @param int $user_id ID of the user to check, or 0 for current user.
+ *
+ * @since  1.0
+ * @return bool True if the user is at the limit, false if not.
  */
 function rcp_edd_member_downloads_member_at_limit( $user_id = 0 ) {
 
 	if ( ! function_exists( 'rcp_get_subscription_id' ) ) {
 		return;
+	}
+
+	if ( empty( $user_id ) ) {
+		$user_id = wp_get_current_user()->ID;
+	}
+
+	$remaining = rcp_edd_member_downloads_number_remaining( $user_id );
+	$at_limit  = ( $remaining > 0 ) ? false : true;
+
+	return $at_limit;
+}
+
+/**
+ * Get the number of downloads remaining for a user.
+ *
+ * @param int $user_id ID of the user to check, or 0 for current user.
+ *
+ * @since  1.0.1
+ * @return int|false Number of downloads available.
+ */
+function rcp_edd_member_downloads_number_remaining( $user_id = 0 ) {
+
+	if ( ! function_exists( 'rcp_get_subscription_id' ) ) {
+		return false;
 	}
 
 	global $rcp_levels_db;
@@ -95,21 +124,38 @@ function rcp_edd_member_downloads_member_at_limit( $user_id = 0 ) {
 		$user_id = wp_get_current_user()->ID;
 	}
 
-	$limit = false;
+	$remaining = 0;
 
-	if ( ! $sub_id = rcp_get_subscription_id( $user_id ) ) {
-		return $limit;
+	$sub_id = rcp_get_subscription_id( $user_id );
+
+	if ( $sub_id ) {
+		$max       = (int) $rcp_levels_db->get_meta( $sub_id, 'edd_downloads_allowed', true );
+		$current   = (int) get_user_meta( $user_id, 'rcp_edd_member_downloads_current_download_count', true );
+		$remaining = $max - $current;
 	}
 
-	$max     = (int) $rcp_levels_db->get_meta( $sub_id, 'edd_downloads_allowed', true );
-	$current = (int) get_user_meta( $user_id, 'rcp_edd_member_downloads_current_download_count', true );
-
-	if ( $max >= 1 && $current >= $max ) {
-		$limit = true;
+	if ( $remaining < 0 ) {
+		$remaining = 0;
 	}
 
-	return $limit;
+	return $remaining;
+
 }
+
+/**
+ * Displays the number of downloads the current user has remaining in this period.
+ *
+ * @param array  $atts    Shortcode attributes.
+ * @param string $content Shortcode content.
+ *
+ * @since  1.0.1
+ * @return int|false
+ */
+function rcp_edd_member_downloads_remaining_shortcode( $atts, $content = null ) {
+	return rcp_edd_member_downloads_number_remaining();
+}
+
+add_shortcode( 'rcp_edd_downloads_remaining', 'rcp_edd_member_downloads_remaining_shortcode' );
 
 
 /**
