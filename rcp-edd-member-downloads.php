@@ -155,7 +155,7 @@ function rcp_edd_member_downloads_remaining_shortcode( $atts, $content = null ) 
 	return rcp_edd_member_downloads_number_remaining();
 }
 
-add_shortcode( 'rcp_edd_downloads_remaining', 'rcp_edd_member_downloads_remaining_shortcode' );
+add_shortcode( 'rcp_edd_member_downloads_remaining', 'rcp_edd_member_downloads_remaining_shortcode' );
 
 
 /**
