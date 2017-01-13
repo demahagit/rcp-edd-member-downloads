@@ -340,7 +340,7 @@ function rcp_edd_member_downloads_process_ajax_download() {
 
 		remove_action( 'edd_complete_purchase', 'edd_trigger_purchase_receipt', 999 );
 
-		$sub_id = rcp_get_subscription_id( $user_id );
+		$sub_id = rcp_get_subscription_id( $user->ID );
 
 		if ( ! $sub_id ) {
 			wp_die( __( 'You do not have a membership.', 'rcp-edd-member-downloads' ) );
