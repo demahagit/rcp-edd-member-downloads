@@ -322,7 +322,8 @@ function rcp_edd_member_downloads_process_ajax_download() {
 			'number'   => 1,
 			'status'   => 'publish',
 			'user'     => $user->ID,
-			'download' => $item
+			'download' => $item,
+			'meta_key' => '_rcp_edd_member_downloads'
 		) );
 
 		$payment      = $payments->get_payments();
@@ -375,6 +376,9 @@ function rcp_edd_member_downloads_process_ajax_download() {
 		$payment->save();
 		$payment->status  = 'complete';
 		$payment->save();
+
+		// Add a peice of meta to the payment letting us know it was created by this plugin. We query using this meta for future checks.
+		edd_update_payment_meta( $payment->ID, '_rcp_edd_member_downloads', true );
 
 		edd_insert_payment_note( $payment->ID, __( 'Downloaded with RCP membership', 'rcp-edd-member-downloads' ) );
 
