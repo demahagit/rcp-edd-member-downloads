@@ -4,8 +4,8 @@ Contributors: mindctrl, easydigitaldownloads
 Author: Restrict Content Pro Team
 Tags: Restrict Content Pro, Easy Digital Downloads, EDD, download plans, download packs, stock photos, premium content, memberships, subscriptions, restrictions, membership rewards
 Requires at least: 4.5
-Tested up to: 4.6.1
-Stable tag: 1.0
+Tested up to: 4.7.1
+Stable tag: 1.0.1
 License: GPLv2 or later
 
 Sell download subscriptions on your Restrict Content Pro powered membership site.
@@ -56,6 +56,11 @@ No, not at this time.
 4. The standard purchase button is displayed when visitors do not have a membership that allows file downloads, or if the member has reached the download limit for his or her plan.
 
 == Changelog ==
+
+= 1.0.1 =
+* New: Added [rcp_edd_member_downloads_remaining] shortcode to display downloads remaining in the member's current subscription period.
+* Fix: Prevent multiple downloads from firing when an item's Add to Cart button is shown more than once on the same page.
+* Fix: Wrong file possibly downloaded if the item was purchased before this plugin was activated and that purchase had multiple items attached to it.
 
 = 1.0 =
 * Initial Release
