@@ -318,15 +318,23 @@ function rcp_edd_member_downloads_process_ajax_download() {
 
 	if ( edd_has_user_purchased( $user->ID, $item ) ) {
 
-		$payments = new EDD_Payments_Query( array(
+		$payment_args = array(
 			'number'   => 1,
 			'status'   => 'publish',
 			'user'     => $user->ID,
 			'download' => $item,
 			'meta_key' => '_rcp_edd_member_downloads'
-		) );
+		);
 
-		$payment      = $payments->get_payments();
+		$payments = new EDD_Payments_Query( $payment_args );
+
+		$payment  = $payments->get_payments();
+
+		if ( ! $payment ) {
+			unset($payment_args['meta_key'] );
+			$payments = new EDD_Payments_Query( $payment_args );
+			$payment  = $payments->get_payments();
+		}
 
 		$payment_meta = edd_get_payment_meta( $payment[0]->ID );
 
@@ -335,6 +343,23 @@ function rcp_edd_member_downloads_process_ajax_download() {
 		if ( ! empty( $files ) ) {
 			$file_keys = array_keys( $files );
 			$url       = edd_get_download_file_url( $payment_meta['key'], $payment_meta['user_info']['email'], $file_keys[0], $payment_meta['cart_details'][0]['id'] );
+		} else {
+
+			$files    = false;
+			$file_key = false;
+
+			foreach ( $payment_meta['cart_details'] as $key => $cart_item ) {
+				if ( $cart_item['id'] === $item ) {
+					$files = edd_get_download_files( $cart_item['id'] );
+					$file_key = $key;
+					break;
+				}
+			}
+
+			if ( $files && $file_key ) {
+				$file_keys = array_keys( $files );
+				$url       = edd_get_download_file_url( $payment_meta['key'], $payment_meta['user_info']['email'], $file_keys[0], $payment_meta[$key] );
+			}
 		}
 
 	} else {
@@ -377,7 +402,7 @@ function rcp_edd_member_downloads_process_ajax_download() {
 		$payment->status  = 'complete';
 		$payment->save();
 
-		// Add a peice of meta to the payment letting us know it was created by this plugin. We query using this meta for future checks.
+		// Add a piece of meta to the payment letting us know it was created by this plugin. We query using this meta for future checks.
 		edd_update_payment_meta( $payment->ID, '_rcp_edd_member_downloads', true );
 
 		edd_insert_payment_note( $payment->ID, __( 'Downloaded with RCP membership', 'rcp-edd-member-downloads' ) );
