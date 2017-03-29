@@ -424,3 +424,29 @@ function rcp_edd_member_downloads_process_ajax_download() {
 }
 add_action( 'wp_ajax_rcp-edd-member-download-request', 'rcp_edd_member_downloads_process_ajax_download' );
 add_action( 'wp_ajax_nopriv_rcp-edd-member-download-request', 'rcp_edd_member_downloads_process_ajax_download' );
+
+/**
+ * Credit downloads remaining when payment is refunded.
+ *
+ * @param EDD_Payment $edd_payment
+ *
+ * @return void
+ */
+function rcp_edd_member_downloads_refund_payment( $edd_payment ) {
+
+	// Bail if this wasn't from EDD Member Downloads.
+	if ( ! $edd_payment->get_meta( '_rcp_edd_member_downloads' ) ) {
+		return;
+	}
+
+	$current_count = (int) get_user_meta( $edd_payment->user_id, 'rcp_edd_member_downloads_current_download_count', true );
+
+	// Don't let the count go below 0.
+	if ( empty( $current_count ) ) {
+		return;
+	}
+
+	update_user_meta( $edd_payment->user_id, 'rcp_edd_member_downloads_current_download_count', ( $current_count - 1 ) );
+
+}
+add_action( 'edd_post_refund_payment', 'rcp_edd_member_downloads_refund_payment' );
