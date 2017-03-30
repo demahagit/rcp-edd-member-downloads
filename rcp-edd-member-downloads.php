@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Restrict Content Pro - EDD Member Downloads
  * Description: Allow members to download a certain number of items based on their subscription level.
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Restrict Content Pro Team
  * Text Domain: rcp-edd-member-downloads
  */

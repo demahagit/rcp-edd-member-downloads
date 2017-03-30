@@ -1,11 +1,11 @@
 === Restrict Content Pro - EDD Member Downloads ===
 Author URI: https://restrictcontentpro.com
-Contributors: mindctrl, easydigitaldownloads
+Contributors: mindctrl, easydigitaldownloads, nosegraze
 Author: Restrict Content Pro Team
 Tags: Restrict Content Pro, Easy Digital Downloads, EDD, download plans, download packs, stock photos, premium content, memberships, subscriptions, restrictions, membership rewards
 Requires at least: 4.5
-Tested up to: 4.7.1
-Stable tag: 1.0.1
+Tested up to: 4.7.3
+Stable tag: 1.0.2
 License: GPLv2 or later
 
 Sell download subscriptions on your Restrict Content Pro powered membership site.
@@ -56,6 +56,9 @@ No, not at this time.
 4. The standard purchase button is displayed when visitors do not have a membership that allows file downloads, or if the member has reached the download limit for his or her plan.
 
 == Changelog ==
+
+= 1.0.2 =
+* New: Credit downloads remaining total when a member download payment record is refunded.
 
 = 1.0.1 =
 * New: Added [rcp_edd_member_downloads_remaining] shortcode to display downloads remaining in the member's current subscription period.
