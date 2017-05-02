@@ -16,6 +16,36 @@ function rcp_edd_member_downloads_textdomain() {
 }
 add_action( 'plugins_loaded', 'rcp_edd_member_downloads_textdomain' );
 
+/**
+ * Show a notice in the admin area if EDD is not installed.
+ *
+ * @since 1.0.3
+ * @return void
+ */
+function rcp_edd_member_downloads_edd_required_notice() {
+
+	if ( class_exists( 'Easy_Digital_Downloads' ) ) {
+		return;
+	}
+
+	if ( ! current_user_can( 'install_plugins' ) ) {
+		return;
+	}
+
+	?>
+	<div class="notice notice-error">
+		<p>
+			<?php printf(
+				__( 'The Restrict Content Pro EDD Member Downloads add-on requires <a href="%s" target="_blank">Easy Digital Downloads</a>.' ),
+				esc_url( 'https://easydigitaldownloads.com/' )
+			); ?>
+		</p>
+	</div>
+	<?php
+
+}
+add_action( 'admin_notices', 'rcp_edd_member_downloads_edd_required_notice' );
+
 
 /**
  * Adds the plugin settings form fields to the subscription level form.
