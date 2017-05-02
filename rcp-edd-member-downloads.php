@@ -10,6 +10,8 @@
 
 /**
  * Loads the plugin textdomain.
+ *
+ * @return void
  */
 function rcp_edd_member_downloads_textdomain() {
 	load_plugin_textdomain( 'rcp-edd-member-downloads', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
@@ -49,6 +51,10 @@ add_action( 'admin_notices', 'rcp_edd_member_downloads_edd_required_notice' );
 
 /**
  * Adds the plugin settings form fields to the subscription level form.
+ *
+ * @param object $level Subscription level object from the database.
+ *
+ * @return void
  */
 function rcp_edd_member_downloads_level_fields( $level ) {
 
@@ -56,6 +62,9 @@ function rcp_edd_member_downloads_level_fields( $level ) {
 		return;
 	}
 
+	/**
+	 * @var RCP_Levels $rcp_levels_db
+	 */
 	global $rcp_levels_db;
 
 	if ( empty( $level->id ) ) {
@@ -86,6 +95,11 @@ add_action( 'rcp_edit_subscription_form', 'rcp_edd_member_downloads_level_fields
 
 /**
  * Saves the subscription level limit settings.
+ *
+ * @param int   $level_id ID of the subscription level.
+ * @param array $args     Data being added or updated.
+ *
+ * @return void
  */
 function rcp_edd_member_downloads_save_level_limits( $level_id = 0, $args = array() ) {
 
@@ -93,6 +107,9 @@ function rcp_edd_member_downloads_save_level_limits( $level_id = 0, $args = arra
 		return;
 	}
 
+	/**
+	 * @var RCP_Levels $rcp_levels_db
+	 */
 	global $rcp_levels_db;
 
 	if ( empty( $_POST['rcp_edd_downloads_allowed_nonce'] ) || ! wp_verify_nonce( $_POST['rcp_edd_downloads_allowed_nonce'], 'rcp_edd_downloads_allowed_nonce' ) ) {
@@ -190,6 +207,12 @@ add_shortcode( 'rcp_edd_member_downloads_remaining', 'rcp_edd_member_downloads_r
 
 /**
  * Resets a vendor's product submission count when making a new payment.
+ *
+ * @param int   $payment_id ID of the payment that was just inserted.
+ * @param array $args       Payment arguments.
+ * @param float $amount     Amount the payment was for.
+ *
+ * @return void
  */
 function rcp_edd_member_downloads_reset_limit( $payment_id, $args = array(), $amount ) {
 
@@ -202,6 +225,10 @@ add_action( 'rcp_insert_payment', 'rcp_edd_member_downloads_reset_limit', 10, 3 
 
 /**
  * Determines if a user has a membership that allows downloads.
+ *
+ * @param int $user_id ID of the user to check.
+ *
+ * @return bool
  */
 function rcp_edd_member_downloads_user_has_download_membership( $user_id ) {
 
@@ -211,6 +238,9 @@ function rcp_edd_member_downloads_user_has_download_membership( $user_id ) {
 
 	$member = new RCP_Member( $user_id );
 
+	/**
+	 * @var RCP_Levels $rcp_levels_db
+	 */
 	global $rcp_levels_db;
 
 	if ( ! $sub_id = $member->get_subscription_id() ) {
@@ -230,7 +260,14 @@ function rcp_edd_member_downloads_user_has_download_membership( $user_id ) {
 	return false;
 }
 
-
+/**
+ * Render the EDD download button
+ *
+ * @param string $purchase_form Regular purchase form.
+ * @param array  $args          Arguments for display.
+ *
+ * @return string
+ */
 function rcp_edd_member_downloads_download_button( $purchase_form, $args ) {
 
 	if ( ! is_user_logged_in() ) {
@@ -285,7 +322,7 @@ function rcp_edd_member_downloads_download_button( $purchase_form, $args ) {
 						action: 'rcp-edd-member-download-request',
 						security: $('#rcp-edd-member-download-nonce').val(),
 						item: item
-					}
+					};
 
 					$.ajax({
 						data: data,
@@ -323,9 +360,16 @@ function rcp_edd_member_downloads_download_button( $purchase_form, $args ) {
 }
 add_filter( 'edd_purchase_download_form', 'rcp_edd_member_downloads_download_button', 10, 2 );
 
-
+/**
+ * Process file download via ajax and insert payment record
+ *
+ * @return void
+ */
 function rcp_edd_member_downloads_process_ajax_download() {
 
+	/**
+	 * @var RCP_Levels $rcp_levels_db
+	 */
 	global $rcp_levels_db;
 
 	check_ajax_referer( 'rcp-edd-member-download-nonce', 'security' );
