@@ -217,7 +217,20 @@ add_shortcode( 'rcp_edd_member_downloads_remaining', 'rcp_edd_member_downloads_r
 function rcp_edd_member_downloads_reset_limit( $payment_id, $args = array(), $amount ) {
 
 	if ( ! empty( $args['user_id'] ) ) {
+
 		delete_user_meta( $args['user_id'], 'rcp_edd_member_downloads_current_download_count' );
+
+		/** Group Accounts compatibility */
+		if ( ! function_exists( 'rcpga_group_accounts' ) || ! $group_id = rcpga_group_accounts()->members->get_group_id( $args['user_id'] ) ) {
+			return;
+		}
+
+		$group_members = rcpga_group_accounts()->members->get_members( $group_id, array( 'number' => -1 ) );
+
+		foreach( $group_members as $member ) {
+			delete_user_meta( $member->user_id, 'rcp_edd_member_downloads_current_download_count' );
+		}
+
 	}
 }
 add_action( 'rcp_insert_payment', 'rcp_edd_member_downloads_reset_limit', 10, 3 );
