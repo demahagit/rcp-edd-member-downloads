@@ -4,8 +4,8 @@ Contributors: mindctrl, easydigitaldownloads, nosegraze
 Author: Restrict Content Pro Team
 Tags: Restrict Content Pro, Easy Digital Downloads, EDD, download plans, download packs, stock photos, premium content, memberships, subscriptions, restrictions, membership rewards
 Requires at least: 4.5
-Tested up to: 4.7.3
-Stable tag: 1.0.2
+Tested up to: 4.8.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 
 Sell download subscriptions on your Restrict Content Pro powered membership site.
@@ -19,7 +19,7 @@ This plugin is an add-on for [Restrict Content Pro](https://restrictcontentpro.c
 
 Once activated, this plugin will provide a new option on the subscription level add/edit screen that lets you define the number of free downloads a member can have during each subscription period.
 
-For more information, see the [documentation](http://docs.pippinsplugins.com/article/1470-easy-digital-downloads-member-downloads).
+For more information, see the [documentation](http://docs.restrictcontentpro.com/article/1642-edd-member-downloads).
 
 == Installation ==
 
@@ -56,6 +56,11 @@ No, not at this time.
 4. The standard purchase button is displayed when visitors do not have a membership that allows file downloads, or if the member has reached the download limit for his or her plan.
 
 == Changelog ==
+
+= 1.0.3 =
+* New: Show admin notice if Easy Digital Downloads is not installed/activated.
+* Fix: Current download count isn't reset for group members when owner renews (Group Accounts add-on).
+* Tweak: Add more PHPDocs.
 
 = 1.0.2 =
 * New: Credit downloads remaining total when a member download payment record is refunded.
